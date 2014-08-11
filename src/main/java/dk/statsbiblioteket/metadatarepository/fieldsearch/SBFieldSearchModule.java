@@ -30,49 +30,50 @@ public class SBFieldSearchModule extends FieldSearchSQLModule {
 
     @Override
     public void postInitModule() throws ModuleInitializationException { //Duplicated from super as we need to override the m_wrappedFieldSearch
+        int maxResults = getMaxResults();
+        int maxSecondsPerSession = getMaxSecondsPerSession();
+        boolean indexDCFields = getIndexDCFields();
+        ConnectionPool cPool = getConnectionPool();
+        createDoIdentifierTable(cPool);
+        DOManager doManager = getDoManager();
+        m_wrappedFieldSearch = new SBFieldSearchSQLImpl(cPool, doManager, maxResults, maxSecondsPerSession, indexDCFields);
+    }
+
+    private DOManager getDoManager() throws ModuleInitializationException {
         //
-        // get and validate maxResults
+        // get the doManager
         //
-        if (getParameter("maxResults") == null) {
-            throw new ModuleInitializationException("maxResults parameter must be specified.", getRole());
+        DOManager doManager = (DOManager) getServer().getModule("org.fcrepo.server.storage.DOManager");
+        if (doManager == null) {
+            throw new ModuleInitializationException("DOManager module was required, but apparently has " + "not been loaded.",
+                    getRole());
         }
-        int maxResults = 0;
+        return doManager;
+    }
+
+    /**
+     * Create the doIdentifier table
+     * @param cPool the connection pool
+     * @throws ModuleInitializationException
+     */
+    private void createDoIdentifierTable(ConnectionPool cPool) throws ModuleInitializationException {
+    /*Create the table, as this is not created by Fedora default*/
         try {
-            maxResults = Integer.parseInt(getParameter("maxResults"));
-            if (maxResults < 1) {
-                throw new NumberFormatException("");
+            String dbSpec = "dk/statsbiblioteket/metadatarepository/SBFieldSearch.dbspec";
+            InputStream specIn = this.getClass().getClassLoader().getResourceAsStream(dbSpec);
+            if (specIn == null) {
+                throw new IOException("Cannot find required " + "resource: " +
+                                      dbSpec);
             }
-        } catch (NumberFormatException nfe) {
-            throw new ModuleInitializationException("maxResults must be a positive integer.", getRole());
+            SQLUtility.createNonExistingTables(cPool, specIn);
+        } catch (Exception e) {
+            throw new ModuleInitializationException("Error while attempting to " +
+                                                    "check for and create non-existing table(s): " +
+                                                    e.getClass().getName() + ": " + e.getMessage(), getRole(), e);
         }
-        //
-        // get and validate maxSecondsPerSession
-        //
-        if (getParameter("maxSecondsPerSession") == null) {
-            throw new ModuleInitializationException("maxSecondsPerSession parameter must be specified.", getRole());
-        }
-        int maxSecondsPerSession = 0;
-        try {
-            maxSecondsPerSession = Integer.parseInt(getParameter("maxSecondsPerSession"));
-            if (maxSecondsPerSession < 1) {
-                throw new NumberFormatException("");
-            }
-        } catch (NumberFormatException nfe) {
-            throw new ModuleInitializationException("maxSecondsPerSession must be a positive integer.", getRole());
-        }
-        //
-        // get indexDCFields parameter (default to true if unspecified)
-        //
-        boolean indexDCFields = true;
-        String indexDCFieldsValue = getParameter("indexDCFields");
-        if (indexDCFieldsValue != null) {
-            String val = indexDCFieldsValue.trim().toLowerCase();
-            if (val.equals("false") || val.equals("no")) {
-                indexDCFields = false;
-            } else if (!val.equals("true") && !val.equals("yes")) {
-                throw new ModuleInitializationException("indexDCFields param " + "was not a boolean", getRole());
-            }
-        }
+    }
+
+    private ConnectionPool getConnectionPool() throws ModuleInitializationException {
         //
         // get connectionPool from ConnectionPoolManager
         //
@@ -95,34 +96,62 @@ public class SBFieldSearchModule extends FieldSearchSQLModule {
         } catch (ConnectionPoolNotFoundException cpnfe) {
             throw new ModuleInitializationException("Could not find requested " + "connectionPool.", getRole());
         }
+        return cPool;
+    }
 
-        /*Create the table, as this is not created by Fedora default*/
-        try {
-            String dbSpec = "dk/statsbiblioteket/metadatarepository/SBFieldSearch.dbspec";
-            InputStream specIn = this.getClass().getClassLoader().getResourceAsStream(dbSpec);
-            if (specIn == null) {
-                throw new IOException("Cannot find required " + "resource: " +
-                                      dbSpec);
+    private boolean getIndexDCFields() throws ModuleInitializationException {
+        //
+        // get indexDCFields parameter (default to true if unspecified)
+        //
+        boolean indexDCFields = true;
+        String indexDCFieldsValue = getParameter("indexDCFields");
+        if (indexDCFieldsValue != null) {
+            String val = indexDCFieldsValue.trim().toLowerCase();
+            if (val.equals("false") || val.equals("no")) {
+                indexDCFields = false;
+            } else if (!val.equals("true") && !val.equals("yes")) {
+                throw new ModuleInitializationException("indexDCFields param " + "was not a boolean", getRole());
             }
-            SQLUtility.createNonExistingTables(cPool, specIn);
-        } catch (Exception e) {
-            throw new ModuleInitializationException("Error while attempting to " +
-                                                    "check for and create non-existing table(s): " +
-                                                    e.getClass().getName() + ": " + e.getMessage(), getRole(), e);
         }
+        return indexDCFields;
+    }
 
+    private int getMaxSecondsPerSession() throws ModuleInitializationException {
         //
-        // get the doManager
+        // get and validate maxSecondsPerSession
         //
-        DOManager doManager = (DOManager) getServer().getModule("org.fcrepo.server.storage.DOManager");
-        if (doManager == null) {
-            throw new ModuleInitializationException("DOManager module was required, but apparently has " + "not been loaded.",
-                    getRole());
+        if (getParameter("maxSecondsPerSession") == null) {
+            throw new ModuleInitializationException("maxSecondsPerSession parameter must be specified.", getRole());
         }
+        int maxSecondsPerSession = 0;
+        try {
+            maxSecondsPerSession = Integer.parseInt(getParameter("maxSecondsPerSession"));
+            if (maxSecondsPerSession < 1) {
+                throw new NumberFormatException("");
+            }
+        } catch (NumberFormatException nfe) {
+            throw new ModuleInitializationException("maxSecondsPerSession must be a positive integer.", getRole());
+        }
+        return maxSecondsPerSession;
+    }
+
+    private int getMaxResults() throws ModuleInitializationException {
         //
-        // things look ok...get the wrapped instance
+        // get and validate maxResults
         //
-        m_wrappedFieldSearch = new SBFieldSearchSQLImpl(cPool, doManager, maxResults, maxSecondsPerSession, indexDCFields);
+        if (getParameter("maxResults") == null) {
+            throw new ModuleInitializationException("maxResults parameter must be specified.", getRole());
+        }
+        int maxResults = 0;
+        try {
+            maxResults = Integer.parseInt(getParameter("maxResults"));
+            if (maxResults < 1) {
+                throw new NumberFormatException("");
+            }
+        } catch (NumberFormatException nfe) {
+            throw new ModuleInitializationException("maxResults must be a positive integer.", getRole());
+        }
+        return maxResults;
     }
 
     @Override

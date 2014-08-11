@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The SearchResult class for a result from the doIdentifiers table
+ */
 public class SBFieldSearchResultImpl implements FieldSearchResult {
 
     List<ObjectFields> pids;
@@ -27,7 +30,7 @@ public class SBFieldSearchResultImpl implements FieldSearchResult {
 
     public SBFieldSearchResultImpl(ResultSet m_resultSet) throws SQLException {
         listOffset = 0;
-        pids = new ArrayList<ObjectFields>();
+        pids = new ArrayList<>();
         while (m_resultSet.next())  {
             ObjectFields element = new ObjectFields();
             element.setPid(m_resultSet.getString("pid"));
@@ -38,7 +41,7 @@ public class SBFieldSearchResultImpl implements FieldSearchResult {
     }
 
     private List<ObjectFields> convert(List<String> pids) {
-        ArrayList<ObjectFields> result = new ArrayList<ObjectFields>(pids.size());
+        ArrayList<ObjectFields> result = new ArrayList<>(pids.size());
         for (String pid : pids) {
             ObjectFields element = new ObjectFields();
             element.setPid(pid);
