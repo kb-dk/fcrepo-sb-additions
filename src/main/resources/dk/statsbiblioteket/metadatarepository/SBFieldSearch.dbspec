@@ -5,7 +5,7 @@
 		<column name="pid" type="varchar(64)" notNull="true" index="pid" binary="true">
 			<comment>The PID of the object</comment>
 		</column>
-		<column name="dcIdentifier" type="text" notNull="true">
+		<column name="dcIdentifier" type="varchar(2048)" notNull="true" index="dcIdentifier">
 			<comment>A DC Identifier value</comment>
 		</column>
     </table>
