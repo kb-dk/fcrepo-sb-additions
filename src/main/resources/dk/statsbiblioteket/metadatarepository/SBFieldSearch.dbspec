@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+    <table name="doIdentifiers">
+		<comment></comment>
+		<column name="pid" type="varchar(64)" notNull="true" index="pid" binary="true">
+			<comment>The PID of the object</comment>
+		</column>
+		<column name="dcIdentifier" type="text" notNull="true">
+			<comment>A DC Identifier value</comment>
+		</column>
+    </table>
+</database>
+
+
