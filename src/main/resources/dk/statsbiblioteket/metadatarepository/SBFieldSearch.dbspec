@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <database>
     <table name="doIdentifiers">
-		<comment></comment>
+		<comment>This table links pids and dcIdentifiers</comment>
 		<column name="pid" type="varchar(64)" notNull="true" index="pid" binary="true">
 			<comment>The PID of the object</comment>
 		</column>
