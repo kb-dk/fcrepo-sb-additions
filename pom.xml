@@ -10,7 +10,7 @@
 
 
     <groupId>dk.statsbiblioteket.metadatarepository</groupId>
-    <artifactId>fedoraNoObjectPolicy</artifactId>
+    <artifactId>fedora-sb-additions</artifactId>
     <version>1.0.2-SNAPSHOT</version>
 
     <distributionManagement>
@@ -33,10 +33,10 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:git@github.com:statsbiblioteket/fcrepo-disable-object-policy.git</connection>
-        <developerConnection>scm:git:git@github.com:statsbiblioteket/fcrepo-disable-object-policy.git
+        <connection>scm:git:git@github.com:statsbiblioteket/fcrepo-sb-additions.git</connection>
+        <developerConnection>scm:git:git@github.com:statsbiblioteket/fcrepo-sb-additions.git
         </developerConnection>
-        <url>git@github.com:statsbiblioteket/fcrepo-disable-object-policy.git</url>
+        <url>git@github.com:statsbiblioteket/fcrepo-sb-additions.git</url>
     </scm>
 
     <dependencies>
