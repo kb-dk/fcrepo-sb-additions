@@ -179,24 +179,28 @@ public class SBFieldSearchSQLImpl extends FieldSearchSQLImpl {
                 Condition condition = conditions.get(0);
                 if (condition.getProperty().equals("identifier")) { //and this is a condition on dcIdentifier
                     if (condition.getOperator() == Operator.EQUALS) { //and the condition is equals
-                        try {
-                            Connection conn = m_cPool.getReadOnlyConnection();
-                            try (PreparedStatement m_statement = conn.prepareStatement(
-                                    "SELECT doIdentifiers.pid FROM doIdentifiers where doIdentifiers.dcIdentifier=?")) {
-                                m_statement.setString(1, condition.getValue());
-                                try (ResultSet m_resultSet = m_statement.executeQuery()) {
-                                    return new SBFieldSearchResultImpl(m_resultSet);
-                                }
-                            } finally {
-                                m_cPool.free(conn);
-                            }
-                        } catch (SQLException e) {
-                            throw new StorageDeviceException("Error querying sql db: " + e.getMessage(), e);
-                        }
+                        return searchUsingSBFieldSearch(condition);
                     }
                 }
             }
         } // If any of the conditions failed, forward to the normal fieldSearch
         return super.findObjects(resultFields, maxResults, query);
+    }
+
+    private FieldSearchResult searchUsingSBFieldSearch(Condition condition) throws StorageDeviceException {
+        try {
+            Connection conn = m_cPool.getReadOnlyConnection();
+            try (PreparedStatement m_statement = conn.prepareStatement(
+                    "SELECT doIdentifiers.pid FROM doIdentifiers where doIdentifiers.dcIdentifier=?")) {
+                m_statement.setString(1, condition.getValue());
+                try (ResultSet m_resultSet = m_statement.executeQuery()) {
+                    return new SBFieldSearchResultImpl(m_resultSet);
+                }
+            } finally {
+                m_cPool.free(conn);
+            }
+        } catch (SQLException e) {
+            throw new StorageDeviceException("Error querying sql db: " + e.getMessage(), e);
+        }
     }
 }
