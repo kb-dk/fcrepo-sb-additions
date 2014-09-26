@@ -46,7 +46,12 @@
             <version>3.6.2</version>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.fcrepo</groupId>
+            <artifactId>fcrepo-security-jaas</artifactId>
+            <version>3.6.2</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
