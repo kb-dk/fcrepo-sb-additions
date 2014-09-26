@@ -229,6 +229,7 @@ public class XmlUsersFileModule
                 return true;
             }
         } catch (Exception e) {
+            //THIS LINE IS THE ONLY DIFFERENCE
             logger.error(e.getMessage(),e);
         }
         return false;
