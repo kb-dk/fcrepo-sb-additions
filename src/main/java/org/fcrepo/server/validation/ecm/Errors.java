@@ -1,5 +1,7 @@
 package org.fcrepo.server.validation.ecm;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -15,6 +17,7 @@ import java.util.TimeZone;
  * To change this template use File | Settings | File Templates.
  */
 public class Errors {
+    private static final Logger logger = LoggerFactory.getLogger(org.fcrepo.server.validation.ecm.Errors.class);
 
     static final SimpleDateFormat DATE_FORMAT =
         new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -115,17 +118,17 @@ public class Errors {
     }
 
     public static String schemaNotFound(String contentmodel) {
-        //TODO
-        return null;  //To change body of created methods use File | Settings | File Templates.
+        return "The Content Model '" + contentmodel + "' could not be found";
     }
 
     public static String schemaCannotParse(String contentmodel, String datastreamID, SAXException e) {
-        //TODO
-        return null;  //To change body of created methods use File | Settings | File Templates.
+        logger.info("Failed to parse schema '" + datastreamID + "' from content model '" + contentmodel + "'", e);
+        return "Cannot parse Schema " + datastreamID + " from ContentModel '" + contentmodel + "'. Caught Exception " + e
+                .getMessage();
     }
-    
+
     public static String doesNotExistAsOfDateTime(String subject, Date createDate, Date asOfDateTime) {
-        return "The object " + subject + 
+        return "The object " + subject +
         " did not yet exist as of " + DATE_FORMAT.format(asOfDateTime) +
         " (created " + DATE_FORMAT.format(createDate) + ")";
     }
