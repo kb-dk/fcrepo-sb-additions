@@ -332,8 +332,6 @@ public class ConnectionPool {
     public void free(Connection connection) {
         try {
             if (!connection.isClosed()) {
-                // ensure connections returned to pool as read-only
-                setConnectionReadOnly(connection, true);
                 connection.close();
             } else {
                 logger.debug("Ignoring attempt to close a previously closed connection");
