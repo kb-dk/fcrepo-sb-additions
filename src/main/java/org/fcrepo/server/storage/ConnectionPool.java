@@ -33,7 +33,6 @@ public class ConnectionPool {
 
     private BasicDataSource dataSource;
 
-    private boolean supportsReadOnly = true;
 
     /**
      * <p>
@@ -381,16 +380,18 @@ public class ConnectionPool {
 
     /*
      * Set the read-only state of the connection.  If the connection throws an
-     * exception, record this, and don't attempt to change the state in future
+     * exception, log this and continue. Do not set the read only state if the
+     * connection is closed or already in the right state
      */
     private void setConnectionReadOnly(Connection connection, boolean readOnly) {
-        if (supportsReadOnly) {
-            try {
+        try {
+            if (!connection.isClosed() && (connection.isReadOnly() != readOnly)) {
                 connection.setReadOnly(readOnly);
-            } catch (Throwable th) {
-                logger.info("Read-only connections not supported (" + th.getMessage() + ")");
-                supportsReadOnly = false;
             }
+        } catch (SQLException e) {
+            //about loggingg format, see https://stackoverflow.com/questions/6371638/slf4j-how-to-log-formatted-message-object-array-exception/6374166#6374166
+            logger.warn("Failed to change connection {} read-only flag to {}. We hope this connection works for you.",
+                    new Object[]{connection, readOnly, e});
         }
 
     }
