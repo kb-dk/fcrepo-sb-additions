@@ -79,8 +79,14 @@ public class RISearchServlet extends SpringAccessServlet {
     }
 
     private String getPath(String loc) {
-        if (loc == null){
+        if (loc == null)
             return null;
+        if (loc.startsWith("/")) {
+            String foo = getServletContext().getRealPath("/foo");
+            File dir = new File(foo).getParentFile()
+                                    .getParentFile();
+            File file = new File(dir, loc);
+            return file.toString();
         } else {
             return getServletContext().getRealPath(loc);
         }
@@ -371,15 +377,15 @@ public class RISearchServlet extends SpringAccessServlet {
     }
 
     private String getIndexStylesheetLocation() {
-        return "/ri/index.xsl";
+        return "ri/index.xsl";
     }
 
     private String getFormStylesheetLocation() {
-        return "/ri/form.xsl";
+        return "ri/form.xsl";
     }
 
     private String getErrorStylesheetLocation() {
-        return "/ri/error.xsl";
+        return "ri/error.xsl";
     }
 
     private String getContext(String origContext) {
