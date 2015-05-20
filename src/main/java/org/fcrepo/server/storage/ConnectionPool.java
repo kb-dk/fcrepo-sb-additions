@@ -416,7 +416,7 @@ public class ConnectionPool {
      * connection is closed or already in the right state
      */
     private void setConnectionReadOnly(Connection connection, boolean readOnly) {
-        if (!supportsReadOnly && readOnly){
+        if (!supportsReadOnly){
             //if we attempt to set readonly, and the connection is marked to not support it, do nothing
             return;
         }
