@@ -33,6 +33,8 @@ public class ConnectionPool {
 
     private BasicDataSource dataSource;
 
+    private boolean supportsReadOnly = false;
+
 
     /**
      * <p>
@@ -162,7 +164,18 @@ public class ConnectionPool {
 
     protected void setConnectionProperties(Map<String, String> props) {
         for (String name : props.keySet()) {
-            dataSource.addConnectionProperty(name, props.get(name));
+            if (name.equals("database.supportsReadOnly")){
+                String value = props.get(name);
+                try {
+                    if (!Boolean.valueOf(value)){
+                        supportsReadOnly = false;
+                    }
+                } catch (Exception e) {
+                    logger.error("Failed to read value '{}' of 'connection.database.supportsReadOnly' as a boolean",value,e);
+                }
+            } else {
+                dataSource.addConnectionProperty(name, props.get(name));
+            }
         }
     }
 
@@ -384,13 +397,18 @@ public class ConnectionPool {
      * connection is closed or already in the right state
      */
     private void setConnectionReadOnly(Connection connection, boolean readOnly) {
+        if (!supportsReadOnly && readOnly){
+            //if we attempt to set readonly, and the connection is marked to not support it, do nothing
+            return;
+        }
         try {
             if (!connection.isClosed() && (connection.isReadOnly() != readOnly)) {
                 connection.setReadOnly(readOnly);
             }
         } catch (SQLException e) {
             //about loggingg format, see https://stackoverflow.com/questions/6371638/slf4j-how-to-log-formatted-message-object-array-exception/6374166#6374166
-            logger.warn("Failed to change connection {} read-only flag to {}. We hope this connection works for you.",
+            logger.warn("Failed to change connection {} read-only flag to {}. We hope this connection works for you. If" +
+                            " the database do not support read only, set the property 'connection.database.supportReadOnly' to false.",
                     new Object[]{connection, readOnly, e});
         }
 
