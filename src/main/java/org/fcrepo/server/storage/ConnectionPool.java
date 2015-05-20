@@ -161,6 +161,25 @@ public class ConnectionPool {
         }
     }
 
+    /**
+     * This method is called by the ConnectionPoolManagementImpl immediately after the constructor is called. The
+     * properties are populated by this code
+     *
+     *  <pre>
+       // Treat any parameters whose names start with "connection."
+        // as connection parameters
+        Map<String, String> cProps = new HashMap<String, String>();
+        for (String name : config.getParameters().keySet()) {
+            if (name.startsWith("connection.")) {
+                String realName = name.substring(11);
+                logger.debug("Connection property " + realName + " = "
+                            + config.getParameter(name));
+                cProps.put(realName, config.getParameter(name));
+            }
+        }
+     </pre>
+     * @param props see above
+     */
     protected void setConnectionProperties(Map<String, String> props) {
         for (String name : props.keySet()) {
             if (name.equals("database.supportsReadOnly")){
