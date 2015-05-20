@@ -33,8 +33,7 @@ public class ConnectionPool {
 
     private BasicDataSource dataSource;
 
-    private boolean supportsReadOnly = false;
-
+    private boolean supportsReadOnly = true;
 
     /**
      * <p>
@@ -392,7 +391,8 @@ public class ConnectionPool {
     }
 
     /*
-     * Set the read-only state of the connection.  If the connection throws an
+     * Set the read-only state of the connection, if the properties do not mark
+     * this as not supported.  If the connection throws an
      * exception, log this and continue. Do not set the read only state if the
      * connection is closed or already in the right state
      */
