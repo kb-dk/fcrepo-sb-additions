@@ -179,6 +179,7 @@ public class ConnectionPool {
         }
      </pre>
      * @param props see above
+     * @see org.fcrepo.server.storage.ConnectionPoolManagerImpl
      */
     protected void setConnectionProperties(Map<String, String> props) {
         for (String name : props.keySet()) {
