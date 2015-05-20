@@ -190,7 +190,7 @@ public class ConnectionPool {
                         supportsReadOnly = false;
                     }
                 } catch (Exception e) {
-                    logger.error("Failed to read value '{}' of 'connection.database.supportsReadOnly' as a boolean",value,e);
+                    logger.warn("Failed to read value '{}' of 'connection.database.supportsReadOnly' as a boolean",value,e);
                 }
             } else {
                 dataSource.addConnectionProperty(name, props.get(name));
@@ -428,7 +428,7 @@ public class ConnectionPool {
         } catch (SQLException e) {
             //about loggingg format, see https://stackoverflow.com/questions/6371638/slf4j-how-to-log-formatted-message-object-array-exception/6374166#6374166
             logger.warn("Failed to change connection {} read-only flag to {}. We hope this connection works for you. If" +
-                            " the database do not support read only, set the property 'connection.database.supportReadOnly' to false.",
+                            " the database does not support read only, set the property 'connection.database.supportsReadOnly' to false.",
                     new Object[]{connection, readOnly, e});
         }
 
